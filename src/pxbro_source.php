@@ -59,8 +59,21 @@ class PXBRO_Source
                 CURLOPT_URL => $this->url,
                 CURLOPT_HEADER => false,
                 CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HEADER => true,
+                CURLOPT_CONNECTTIMEOUT => 0,
+                CURLOPT_TIMEOUT => 180,
+                CURLOPT_FOLLOWLOCATION => true,
             ]);
-            $this->raw_xml = curl_exec($ch);
+            $response = curl_exec($ch);
+
+            $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+            $header = substr($response, 0, $header_size);
+            $body = substr($response, $header_size);
+
+            $this->log($header);
+
+            $this->raw_xml = $body;
+
             curl_close($ch);
             file_put_contents($cache_file, $this->raw_xml);
         }
@@ -75,7 +88,7 @@ class PXBRO_Source
      */
     public function saveHTML()
     {
-        $this->log('readHTML');
+        $this->log('saveHTML');
 
         $html_dir = "output" . DS . "html" . DS . $this->slug;
         if (!is_dir($html_dir))
@@ -104,7 +117,7 @@ class PXBRO_Source
 
         file_put_contents($html_file, $html);
 
-        $this->log('readHTML complete');
+        $this->log('saveHTML complete');
     }
 
     /**
