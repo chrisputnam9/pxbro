@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+require_once 'src/console_abstract.php';
+require_once 'src/pxbro_source.php';
+require_once 'src/pxbro.php';
+
+# vim: syntax=php

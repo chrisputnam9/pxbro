@@ -1,0 +1,11 @@
+<h3>Food</h3>
+<ul>
+<?php $i=0; foreach ($this->xml->food as $item): ?>
+    <li class='js-xl'>
+        <a href='#item<?php echo $i ?>'><?php echo $item->name ?></a>
+        <div id='item<?php echo $i ?>' style='display:none'>
+            <pre><?php print_r($item) ?></pre>
+        </div>
+    </li>
+<?php $i++; endforeach; ?>
+</ul>

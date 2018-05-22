@@ -1,2 +1,3 @@
-# pxbro
-PHP XML Browser
+# Requirements
+ - PHP
+ - PHP Curl
