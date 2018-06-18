@@ -709,6 +709,23 @@ class Console_Abstract
         }
     }
 
+    // Get basic curl
+    public function getCurl($url)
+    {
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_HEADER => false,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => true,
+            CURLOPT_CONNECTTIMEOUT => 0,
+            CURLOPT_TIMEOUT => 180,
+            CURLOPT_FOLLOWLOCATION => true,
+        ]);
+        
+        return $ch;
+    }
+
     /**
      * Get parameters for a given method
      */

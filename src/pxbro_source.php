@@ -10,10 +10,10 @@ class PXBRO_Source
     public $cache = false;
 
     public $title = null;
+    public $raw_xml = null;
+    public $xml = null;
 
     protected $shell = null;
-    protected $raw_xml = null;
-    protected $xml = null;
 
     /**
      * Construct new source processor
@@ -49,16 +49,7 @@ class PXBRO_Source
         else
         {
             $this->log("Downloading and saving XML to: $cache_file");
-            $ch = curl_init();
-            curl_setopt_array($ch, [
-                CURLOPT_URL => $this->url,
-                CURLOPT_HEADER => false,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HEADER => true,
-                CURLOPT_CONNECTTIMEOUT => 0,
-                CURLOPT_TIMEOUT => 180,
-                CURLOPT_FOLLOWLOCATION => true,
-            ]);
+            $ch = $this->getCurl($this->url);
             $response = curl_exec($ch);
 
             $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
@@ -70,7 +61,10 @@ class PXBRO_Source
             $this->raw_xml = $body;
 
             curl_close($ch);
-            file_put_contents($cache_file, $this->raw_xml);
+            if (!empty($this->raw_xml))
+            {
+                file_put_contents($cache_file, $this->raw_xml);
+            }
         }
 
         $this->xml = new SimpleXMLElement($this->raw_xml);
@@ -85,7 +79,7 @@ class PXBRO_Source
     {
         $this->log('saveHTML');
 
-        $html_dir = __DIR__ . DS . "output" . DS . "html" . DS . $this->slug;
+        $html_dir = __DIR__ . DS . ".." . DS . "output" . DS . "html" . DS . $this->slug;
         if (!is_dir($html_dir))
             mkdir($html_dir, 0777, true);
         $name = empty($name) ? self::getCleanURL($url) : $name;
@@ -144,7 +138,7 @@ class PXBRO_Source
      */
     public static function getCacheFile($url, $slug)
     {
-        $cache_dir = __DIR__ .  DS . "output" . DS . "xml" . DS . $slug;
+        $cache_dir = __DIR__ .  DS . ".." . DS . "output" . DS . "xml" . DS . $slug;
         if (!is_dir($cache_dir))
             mkdir($cache_dir, 0777, true);
 

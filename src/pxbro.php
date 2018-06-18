@@ -11,6 +11,7 @@ class PXBRO extends Console_Abstract
      */
     protected static $METHODS = [
         'update',
+        'update_cat',
         'sync',
     ];
 
@@ -36,12 +37,50 @@ class PXBRO extends Console_Abstract
         $default_source = $sources[0];
         $source = $this->prepArg($source, $default_source);
 
+        if ($source == 'cat')
+        {
+            return $this->update_cat();
+        }
+
+        $this->log("update - $source");
         $source_config = $this->sources[$source];
         $url = $source_config['url'];
 
         $sourceObj = new PXBRO_Source($this, $source, $url, $this->cache);
         $sourceObj->readXML();
-        $sourceObj->saveHTML('index');
+        return $sourceObj->saveHTML('index');
+    }
+
+    protected $___update_cat = "Custom funtion to update cat specifically";
+    public function update_cat()
+    {
+        $source = 'cat';
+        $this->log("update - $source");
+        $source_config = $this->sources['cat'];
+        $url = $source_config['url'];
+        $sourceObj = new PXBRO_Source($this, $source, $url, $this->cache);
+
+        $ch = $this->getCurl($url);
+        $this->log("Fetching classes from $url");
+        $response = curl_exec($ch);
+        if (preg_match_all('/cid\=(\d+)\D/', $response, $matches))
+        {
+            $class_ids = array_unique($matches[1]);
+            $data = new StdClass();
+            $data->classes=array();
+            foreach ($class_ids as $class_id)
+            {
+                $this->log("Fetching xml for class $class_id");
+                $classSource = new PXBRO_Source($this, $source, "https://cpc.cat.com/ws/xml/US/{$class_id}tree_en.xml", $this->cache);
+                $classSource->readXML();
+                $data->classes[$class_id] = $classSource->xml;
+            }
+
+            $sourceObj->xml = $data;
+            return $sourceObj->saveHTML('index');
+        }
+
+        $this->error('No classes found to fetch');
     }
 
     protected $___sync = "Sync source files based on configured repository";
