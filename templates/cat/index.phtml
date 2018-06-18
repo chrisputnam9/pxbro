@@ -1,0 +1,96 @@
+<?php
+    // Classes: http://h-cpc.cat.com/cmms/cmms
+    // Main: https://cpc.cat.com/ws/xml/US/406tree_en.xml
+    // Family: https://cpc.cat.com/ws/xml/en/1000005105/1000005105_en.xml
+    // Product: https://cpc.cat.com/ws/xml/en/1000005105/1000005091_en.xml
+    $this->title = 'CAT - CPC Data';
+?>
+<div class='columns'>
+    <div class='column-1-2'>
+
+        <!-- Class Level -->
+        <ul>
+        <?php $c=0; foreach ($this->xml->classes as $class_xml): ?>
+            <?php
+                $class = $class_xml->product_group;
+                $url = 'https://cpc.cat.com/ws/xml/US/'.$class['id'].'tree_en.xml';
+                $cache_file = self::getCacheFile($url, $this->slug);
+            ?>
+            <li class='js-xl'>
+                <a href='#class<?php echo $c ?>'><?php echo $class->name ?> (<?php echo $class['id'] ?>) &darr;</a>
+                -
+                <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' target='iframe'>XML</a></small>
+                <small><a href='<?php echo $url ?>' target='blank'>Live XML</a></small>
+                <div id='class<?php echo $c ?>' style='display:none'>
+
+                    <!-- Family Level -->
+                    <ul>
+                    <?php $f=0; foreach ($class->listofgroups->product_group as $family): ?>
+                        <?php
+                            $url = 'https://cpc.cat.com/ws/xml/en/'.$family['id'].'/'.$family['id'].'_en.xml';
+                            $this->more_xml[]= $url;
+                            $cache_file = self::getCacheFile($url, $this->slug);
+                        ?>
+                        <li class='js-xl'>
+                            <a href='#family<?php echo $c.'-'.$f ?>'><?php echo $family->name ?> (<?php echo $family['id'] ?>) &darr;</a>
+                            -
+                            <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' target='iframe'>XML</a></small>
+                            <small><a href='<?php echo $url ?>' target='blank'>Live XML</a></small>
+                            <div id='family<?php echo $c.'-'.$f ?>' style='display:none'>
+
+                                <!-- Subfamily Level -->
+                                <ul>
+                                <?php $s=0; foreach ($family->listofgroups->product_group as $subfamily): ?>
+                                    <?php
+                                        $url = 'https://cpc.cat.com/ws/xml/en/'.$subfamily['id'].'/'.$subfamily['id'].'_en.xml';
+                                        $this->more_xml[]= $url;
+                                        $cache_file = self::getCacheFile($url, $this->slug);
+                                    ?>
+                                    <li class='js-xl'>
+                                        <a href='#subfamily<?php echo $c.'-'.$f.'-'.$s ?>'><?php echo $subfamily->name ?> (<?php echo $subfamily['id'] ?>) &darr;</a>
+                                        -
+                                        <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' target='iframe'>XML</a></small>
+                                        <small><a href='<?php echo $url ?>' target='blank'>Live XML</a></small>
+                                        <div id='subfamily<?php echo $c.'-'.$f.'-'.$s ?>' style='display:none'>
+
+                                            <!-- Product Level -->
+                                            <ul>
+                                            <?php $p=0; foreach ($subfamily->listofproducts->product as $product): ?>
+                                                <?php
+                                                    $url = 'https://cpc.cat.com/ws/xml/en/'.$subfamily['id'].'/'.$product['id'].'_en.xml';
+                                                    $this->more_xml[]= $url;
+                                                    $cache_file = self::getCacheFile($url, $this->slug);
+                                                ?>
+                                                <li class='js-xl'>
+                                                    <?php echo $product->nondisplayname ?> (<?php echo $product['id'] ?>)
+                                                    -
+                                                    <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' target='iframe'>XML</a></small>
+                                                    <small><a href='<?php echo $url ?>' target='blank'>Live XML</a></small>
+                                                </li>
+                                            <?php $p++; endforeach; ?>
+                                            </ul>
+                                            <!-- /Product Level -->
+
+                                        </div>
+                                    </li>
+                                <?php $s++; endforeach; ?>
+                                </ul>
+                                <!-- /Subfamily Level -->
+
+                            </div>
+                        </li>
+                    <?php $f++; endforeach; ?>
+                    </ul>
+                    <!-- /Family Level -->
+
+                </div>
+            </li>
+        <?php $c++; endforeach; ?>
+        </ul>
+        <!-- /Class Level -->
+
+    </div>
+    <div class='column-1-2' style='background: #aaa'>
+        <iframe src='' name='iframe' id='iframe'></iframe>
+    </div>
+</div>

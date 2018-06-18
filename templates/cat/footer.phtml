@@ -1,0 +1,16 @@
+<script src="../_assets/jquery.min.js"></script>
+<script>
+(function($) {
+    $('.js-xl a').on('click', function (event) {
+        var $a = $(this),
+            target = $a.attr('href'),
+            $target = $(target);
+
+        $target.toggle();
+
+        event.preventDefault();
+    });
+})(jQuery);
+</script>
+</body>
+</html>

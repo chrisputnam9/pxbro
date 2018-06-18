@@ -1,0 +1,10 @@
+<ul>
+<?php $i=0; foreach ($this->xml->ProductList->CombinedProduct as $series): ?>
+    <li class='js-xl'>
+        <a href='#series<?php echo $i ?>'><?php echo $series->Product->seriestitle ?></a>
+        <div id='series<?php echo $i ?>' style='display:none'>
+            <pre><?php print_r($series->Data) ?></pre>
+        </div>
+    </li>
+<?php $i++; endforeach; ?>
+</ul>
