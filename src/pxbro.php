@@ -143,9 +143,15 @@ class PXBRO extends Console_Abstract
 
         // Config defaults
         $this->sources = [
-            'example' => [
-                'url' => 'https://www.w3schools.com/xml/simple.xml'
+            "cat" => [
+                "url" => "http://h-cpc.cat.com/cmms/v2?&lid=en&sc=US"
             ],
+            "hyster" => [
+                "url" => "http://www.hyster.com/NaccoAdmin/moonda.xml"
+            ],
+            "menu" => [
+                "url" => "https://www.w3schools.com/xml/simple.xml"
+            ]
         ];
 
         parent::initConfig();
