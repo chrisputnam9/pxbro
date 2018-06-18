@@ -60,16 +60,21 @@ class PXBRO extends Console_Abstract
         $url = $source_config['url'];
         $sourceObj = new PXBRO_Source($this, $source, $url, $this->cache);
 
+        $this->output("Fetching classes from $url");
         $ch = $this->getCurl($url);
-        $this->log("Fetching classes from $url");
         $response = curl_exec($ch);
         if (preg_match_all('/cid\=(\d+)\D/', $response, $matches))
         {
             $class_ids = array_unique($matches[1]);
             $data = new StdClass();
             $data->classes=array();
+            $total = count($class_ids);
+            $c=0;
+            $this->outputProgress($c, $total);
             foreach ($class_ids as $class_id)
             {
+                $c++;
+                $this->outputProgress($c, $total);
                 $this->log("Fetching xml for class $class_id");
                 $classSource = new PXBRO_Source($this, $source, "https://cpc.cat.com/ws/xml/US/{$class_id}tree_en.xml", $this->cache);
                 $classSource->readXML();
@@ -106,12 +111,8 @@ class PXBRO extends Console_Abstract
                 $this->exec("git remote add sync {$this->sync}");
             }
 
-            // Pull
-            $this->log('Pulling from remote (sync)');
-            $this->exec("git pull sync master");
-
             // Push
-            // $this->log('Committing and pushing to remote (sync)');
+            $this->log('Committing and pushing to remote (sync)');
             $this->exec("git add . --all");
             $this->exec("git commit -m \"Automatic sync commit - {$this->stamp()}\"");
             $this->exec("git push sync master");
@@ -155,6 +156,36 @@ class PXBRO extends Console_Abstract
         ];
 
         parent::initConfig();
+    }
+
+    /**
+     * Progress Bar Output
+     */
+    public function outputProgress($count, $total)
+    {
+        if (!$this->verbose)
+        {
+            if ($count > 0)
+            {
+                // Set cursor to first column
+                echo chr(27) . "[0G";
+                // Set cursor up 2 lines
+                echo chr(27) . "[2A";
+            }
+
+            $pad = static::PAD_FULL - 1;
+            $bar_count = floor(($count * $pad) / $total);
+            $output = "[";
+            $output = str_pad($output, $bar_count, "|");
+            $output = str_pad($output, $pad, " ");
+            $output.= "]";
+            $this->output($output);
+            $this->output(str_pad("$count/$total", static::PAD_FULL, " ", STR_PAD_LEFT));
+        }
+        else
+        {
+            $this->output("$count/$total");
+        }
     }
 
 }

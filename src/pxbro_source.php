@@ -92,7 +92,7 @@ class PXBRO_Source
             $this->error("Template file doesn't exist: $template_file");
         }
 
-        $more_xml = [];
+        $this->more_xml = [];
 
         $this->title = ucwords($this->slug);
 
@@ -109,10 +109,14 @@ class PXBRO_Source
 
         file_put_contents($html_file, $html);
 
-        if (!empty($this->more_xml))
+        $this->output('Fetching extra XML');
+        $total = count($this->more_xml);
+        if ($total > 0)
         {
-            foreach ($this->more_xml as $url)
+            $this->outputProgress(0, $total);
+            foreach ($this->more_xml as $u => $url)
             {
+                $this->outputProgress($u+1, $total);
                 $source = new PXBRO_Source($this->shell, 'cat', $url, $this->cache);
                 $source->readXML();
             }
