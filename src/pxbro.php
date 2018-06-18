@@ -4,7 +4,10 @@
  */
 class PXBRO extends Console_Abstract
 {
-    public const VERSION = 1;
+    const VERSION = 1;
+
+    // Name of script and directory to store config
+    const SHORTNAME = 'pxbro';
 
     /**
      * Callable Methods
@@ -14,9 +17,6 @@ class PXBRO extends Console_Abstract
         'update_cat',
         'sync',
     ];
-
-    // Name of script and directory to store config
-    protected const SHORTNAME = 'pxbro';
 
     protected $__sources = ["Source definitions - set in config file", "array"];
     public $sources = [];
