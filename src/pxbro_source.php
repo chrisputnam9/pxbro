@@ -10,7 +10,6 @@ class PXBRO_Source
     public $cache = false;
 
     public $title = null;
-    public $clean_url = null;
 
     protected $shell = null;
     protected $raw_xml = null;
@@ -36,17 +35,13 @@ class PXBRO_Source
     /**
      * Read XML - from URL
      */
-    public function readXML($cache=false)
+    public function readXML()
     {
-        $this->log('readXML');
+        $this->log("readXML $this->url, $this->slug");
 
-        $cache_dir = "output" . DS . "xml" . DS . $this->slug;
-        if (!is_dir($cache_dir))
-            mkdir($cache_dir, 0777, true);
+        $cache_file = self::getCacheFile($this->url, $this->slug);
 
-        $cache_file = $cache_dir . DS . $this->getCleanURL() . '.xml';
-
-        if ($cache and is_file($cache_file))
+        if ($this->cache and is_file($cache_file))
         {
             $this->log("Reading from cache file: $cache_file");
             $this->raw_xml = file_get_contents($cache_file);
@@ -86,14 +81,15 @@ class PXBRO_Source
     /**
      * Save to HTML using template
      */
-    public function saveHTML()
+    public function saveHTML($name=false)
     {
         $this->log('saveHTML');
 
-        $html_dir = "output" . DS . "html" . DS . $this->slug;
+        $html_dir = __DIR__ . DS . "output" . DS . "html" . DS . $this->slug;
         if (!is_dir($html_dir))
             mkdir($html_dir, 0777, true);
-        $html_file = $html_dir . DS . $this->getCleanURL() . '.html';
+        $name = empty($name) ? self::getCleanURL($url) : $name;
+        $html_file = $html_dir . DS . $name . '.html';
 
         $template_dir = "templates" . DS . $this->slug;
         $template_file = $template_dir . DS . $this->filename . '.phtml';
@@ -101,6 +97,8 @@ class PXBRO_Source
         {
             $this->error("Template file doesn't exist: $template_file");
         }
+
+        $more_xml = [];
 
         $this->title = ucwords($this->slug);
 
@@ -117,24 +115,40 @@ class PXBRO_Source
 
         file_put_contents($html_file, $html);
 
+        if (!empty($this->more_xml))
+        {
+            foreach ($this->more_xml as $url)
+            {
+                $source = new PXBRO_Source($this->shell, 'cat', $url, $this->cache);
+                $source->readXML();
+            }
+        }
+
         $this->log('saveHTML complete');
     }
 
     /**
      * Get cleaned version of URL for use as filename/path
      */
-    public function getCleanURL()
+    public static function getCleanURL($url)
     {
-        if (is_null($this->clean_url))
-        {
-            $clean_url = $this->url;
-            $clean_url = strtolower($clean_url);
-            $clean_url = preg_replace('/https?:\/\//', '', $clean_url);
-            $clean_url = preg_replace('/[^0-9a-z]+/', '-', $clean_url);
-            $this->clean_url = $clean_url;
-        }
+        $clean_url = $url;
+        $clean_url = strtolower($clean_url);
+        $clean_url = preg_replace('/https?:\/\//', '', $clean_url);
+        $clean_url = preg_replace('/[^0-9a-z]+/', '-', $clean_url);
+        return $clean_url;
+    }
 
-        return $this->clean_url;
+    /**
+     * Get cache file for a given URL
+     */
+    public static function getCacheFile($url, $slug)
+    {
+        $cache_dir = __DIR__ .  DS . "output" . DS . "xml" . DS . $slug;
+        if (!is_dir($cache_dir))
+            mkdir($cache_dir, 0777, true);
+
+        return $cache_dir . DS . self::getCleanURL($url) . '.xml';
     }
 
     /**
