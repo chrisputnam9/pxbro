@@ -56,6 +56,7 @@ class PXBRO extends Console_Abstract
             // Temporarily switch to config_dir
             $original_dir = getcwd();
             $output_dir = __DIR__ . DS . 'output';
+            $this->log($output_dir);
             chdir($output_dir);
 
             // Set up git if not already done
