@@ -16,10 +16,10 @@
                 $url = 'https://cpc.cat.com/ws/xml/US/'.$class['id'].'tree_en.xml';
                 $cache_file = self::getCacheFile($url, $this->slug);
             ?>
-            <li class='js-xl'>
-                <a href='#class<?php echo $c ?>'><?php echo $class->name ?> (<?php echo $class['id'] ?>) &darr;</a>
+            <li>
+                <a class='js-xl' href='#class<?php echo $c ?>'><?php echo $class->name ?> (<?php echo $class['id'] ?>) &darr;</a>
                 -
-                <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' target='iframe'>XML</a></small>
+                <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' class='js-preview'>XML</a></small>
                 <small><a href='<?php echo $url ?>' target='blank'>Live XML</a></small>
                 <div id='class<?php echo $c ?>' style='display:none'>
 
@@ -31,10 +31,10 @@
                             $this->more_xml[]= $url;
                             $cache_file = self::getCacheFile($url, $this->slug);
                         ?>
-                        <li class='js-xl'>
-                            <a href='#family<?php echo $c.'-'.$f ?>'><?php echo $family->name ?> (<?php echo $family['id'] ?>) &darr;</a>
+                        <li>
+                            <a class='js-xl' href='#family<?php echo $c.'-'.$f ?>'><?php echo $family->name ?> (<?php echo $family['id'] ?>) &darr;</a>
                             -
-                            <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' target='iframe'>XML</a></small>
+                            <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' class='js-preview'>XML</a></small>
                             <small><a href='<?php echo $url ?>' target='blank'>Live XML</a></small>
                             <div id='family<?php echo $c.'-'.$f ?>' style='display:none'>
 
@@ -46,10 +46,10 @@
                                         $this->more_xml[]= $url;
                                         $cache_file = self::getCacheFile($url, $this->slug);
                                     ?>
-                                    <li class='js-xl'>
-                                        <a href='#subfamily<?php echo $c.'-'.$f.'-'.$s ?>'><?php echo $subfamily->name ?> (<?php echo $subfamily['id'] ?>) &darr;</a>
+                                    <li>
+                                        <a class='js-xl' href='#subfamily<?php echo $c.'-'.$f.'-'.$s ?>'><?php echo $subfamily->name ?> (<?php echo $subfamily['id'] ?>) &darr;</a>
                                         -
-                                        <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' target='iframe'>XML</a></small>
+                                        <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' class='js-preview'>XML</a></small>
                                         <small><a href='<?php echo $url ?>' target='blank'>Live XML</a></small>
                                         <div id='subfamily<?php echo $c.'-'.$f.'-'.$s ?>' style='display:none'>
 
@@ -61,10 +61,10 @@
                                                     $this->more_xml[]= $url;
                                                     $cache_file = self::getCacheFile($url, $this->slug);
                                                 ?>
-                                                <li class='js-xl'>
+                                                <li>
                                                     <?php echo $product->nondisplayname ?> (<?php echo $product['id'] ?>)
                                                     -
-                                                    <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' target='iframe'>XML</a></small>
+                                                    <small><a href='../../xml/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' class='js-preview'>XML</a></small>
                                                     <small><a href='<?php echo $url ?>' target='blank'>Live XML</a></small>
                                                 </li>
                                             <?php $p++; endforeach; ?>
@@ -91,6 +91,7 @@
 
     </div>
     <div class='column-1-2' style='background: #aaa'>
-        <iframe src='' name='iframe' id='iframe'></iframe>
+        <span class='js-preview-link'></span>
+        <textarea src='' class='js-preview-window'></textarea>
     </div>
 </div>
