@@ -22,9 +22,11 @@
 
         event.preventDefault();
 
+        $preview_link.html('<a href="'+href+'" target="_blank">Open in new tab</a>');
+
         $.get(href, function (data) {
             $preview_window.html(data);
-        });
+        }, 'text');
     });
 
 })(jQuery);
