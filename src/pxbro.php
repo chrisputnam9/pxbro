@@ -15,6 +15,7 @@ class PXBRO extends Console_Abstract
     protected static $METHODS = [
         'update',
         'update_cat',
+        'update_clopay',
         'sync',
     ];
 
@@ -40,6 +41,10 @@ class PXBRO extends Console_Abstract
         if ($source == 'cat')
         {
             return $this->update_cat();
+        }
+        elseif ($source == 'clopay')
+        {
+            return $this->update_clopay();
         }
 
         $this->log("update - $source");
@@ -86,6 +91,36 @@ class PXBRO extends Console_Abstract
         }
 
         $this->error('No classes found to fetch');
+    }
+
+    protected $___update_clopay = "Custom funtion to update clopay specifically";
+    public function update_clopay()
+    {
+        $source = 'clopay';
+        $this->log("update - $source");
+        $source_config = $this->sources['clopay'];
+        $url_template = $source_config['url'];
+
+        $sourceObj = new PXBRO_Source($this, $source, $url_template, $this->cache);
+        $data = new StdClass();
+        $data->products_by_type = array();
+
+        foreach (['Residential','Entrydoor','Commercial'] as $type)
+        {
+            $url = str_replace('{type}', $type, $url_template);
+            $this->output("Fetching product list from $url");
+            $typeSource = new PXBRO_Source($this, $source, $url, $this->cache);
+            $typeSource->readJSON();
+            $products = $typeSource->json;
+            if (!is_array($products))
+            {
+                $products = [];
+            }
+            $data->products_by_type[$type] = $products;
+        }
+
+        $sourceObj->json = $data;
+        return $sourceObj->saveHTML('index');
     }
 
     protected $___sync = "Sync source files based on configured repository";

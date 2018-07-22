@@ -1,5 +1,6 @@
 .NERDTreeBookmarks
 output/html/*
 output/xml/*
+output/json/*
 
 !output/html/_assets

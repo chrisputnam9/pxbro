@@ -10,8 +10,9 @@ class PXBRO_Source
     public $cache = false;
 
     public $title = null;
-    public $raw_xml = null;
+    public $raw_content = null;
     public $xml = null;
+    public $json = null;
 
     protected $shell = null;
 
@@ -33,22 +34,45 @@ class PXBRO_Source
     }
 
     /**
+     * Read JSON - from URL
+     */
+    public function readJSON()
+    {
+        $this->log("readJSON $this->url, $this->slug");
+
+        $this->readRaw('json');
+
+        $this->json = json_decode($this->raw_content, true);
+
+        $this->log('readJSON complete');
+    }
+
+    /**
      * Read XML - from URL
      */
     public function readXML()
     {
         $this->log("readXML $this->url, $this->slug");
 
-        $cache_file = self::getCacheFile($this->url, $this->slug);
+        $this->readRaw();
+
+        $this->xml = new SimpleXMLElement($this->raw_content);
+
+        $this->log('readXML complete');
+    }
+
+    public function readRaw($type='xml')
+    {
+        $cache_file = self::getCacheFile($this->url, $this->slug, $type);
 
         if ($this->cache and is_file($cache_file))
         {
             $this->log("Reading from cache file: $cache_file");
-            $this->raw_xml = file_get_contents($cache_file);
+            $this->raw_content = file_get_contents($cache_file);
         }
         else
         {
-            $this->log("Downloading and saving XML to: $cache_file");
+            $this->log("Downloading and saving raw content to: $cache_file");
             $ch = $this->getCurl($this->url);
             $response = curl_exec($ch);
 
@@ -58,18 +82,14 @@ class PXBRO_Source
 
             $this->log($header);
 
-            $this->raw_xml = $body;
+            $this->raw_content = $body;
 
             curl_close($ch);
-            if (!empty($this->raw_xml))
+            if (!empty($this->raw_content))
             {
-                file_put_contents($cache_file, $this->raw_xml);
+                file_put_contents($cache_file, $this->raw_content);
             }
         }
-
-        $this->xml = new SimpleXMLElement($this->raw_xml);
-
-        $this->log('readXML complete');
     }
 
     /**
@@ -93,6 +113,7 @@ class PXBRO_Source
         }
 
         $this->more_xml = [];
+        $this->more_json = [];
 
         $this->title = ucwords($this->slug);
 
@@ -109,16 +130,29 @@ class PXBRO_Source
 
         file_put_contents($html_file, $html);
 
-        $this->output('Fetching extra XML');
         $total = count($this->more_xml);
         if ($total > 0)
         {
+            $this->output('Fetching extra XML');
             $this->outputProgress(0, $total);
             foreach ($this->more_xml as $u => $url)
             {
                 $this->outputProgress($u+1, $total);
-                $source = new PXBRO_Source($this->shell, 'cat', $url, $this->cache);
+                $source = new PXBRO_Source($this->shell, $this->slug, $url, $this->cache);
                 $source->readXML();
+            }
+        }
+
+        $total = count($this->more_json);
+        if ($total > 0)
+        {
+            $this->output('Fetching extra JSON');
+            $this->outputProgress(0, $total);
+            foreach ($this->more_json as $u => $url)
+            {
+                $this->outputProgress($u+1, $total);
+                $source = new PXBRO_Source($this->shell, $this->slug, $url, $this->cache);
+                $source->readJSON();
             }
         }
 
@@ -140,13 +174,13 @@ class PXBRO_Source
     /**
      * Get cache file for a given URL
      */
-    public static function getCacheFile($url, $slug)
+    public static function getCacheFile($url, $slug, $type='xml')
     {
-        $cache_dir = __DIR__ .  DS . ".." . DS . "output" . DS . "xml" . DS . $slug;
+        $cache_dir = __DIR__ .  DS . ".." . DS . "output" . DS . $type . DS . $slug;
         if (!is_dir($cache_dir))
             mkdir($cache_dir, 0777, true);
 
-        return $cache_dir . DS . self::getCleanURL($url) . '.xml';
+        return $cache_dir . DS . self::getCleanURL($url) . '.' . $type;
     }
 
     /**

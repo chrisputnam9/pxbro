@@ -1,0 +1,35 @@
+<script src="../_assets/jquery.min.js"></script>
+<script>
+(function($) {
+
+    // Tree expand/collapse
+    $('a.js-xl').on('click', function (event) {
+        var $a = $(this),
+            target = $a.attr('href'),
+            $target = $(target);
+
+        $target.toggle();
+
+        event.preventDefault();
+    });
+
+    // Preview files in textarea
+    var $preview_window = $('.js-preview-window'),
+        $preview_link = $('.js-preview-link');
+    $('a.js-preview').on('click', function (event) {
+        var $a = $(this),
+            href = $a.attr('href');
+
+        event.preventDefault();
+
+        $preview_link.html('<a href="'+href+'" target="_blank">Open in new tab</a>');
+
+        $.get(href, function (data) {
+            $preview_window.html(data);
+        }, 'text');
+    });
+
+})(jQuery);
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<?php
+    $this->title = 'Clopay - API Data';
+?>
+<div class='columns'>
+    <div class='column-1-2'>
+
+        <!-- Type Level -->
+        <ul>
+        <?php $t=0; foreach ($this->json->products_by_type as $type => $products): ?>
+            <?php
+                $url = str_replace('{type}', $type, $this->url);
+                $cache_file = self::getCacheFile($url, $this->slug, 'json');
+            ?>
+            <li>
+                <a class='js-xl' href='#type<?php echo $t ?>'><?php echo $type ?> &darr;</a>
+                -
+                <small><a href='../../json/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' class='js-preview'>JSON</a></small>
+                <small><a href='<?php echo $url ?>' target='blank'>Live XML (curl for JSON)</a></small>
+                <div id='type<?php echo $t ?>' style='display:none'>
+
+                    <!-- Product Level -->
+                    <ul>
+                    <?php $p=0; foreach ($products as $product): ?>
+                        <?php
+                            $url = "http://www.clopaydoor.com/api/v1/GetProductDetails/Get".($type == 'Commercial' ? 'Commercial' : '')."ProductData/?productId=".$product['ProductId'];
+                            $this->more_json[]= $url;
+                            $cache_file = self::getCacheFile($url, $this->slug, 'json');
+                        ?>
+                        <li>
+                            <?php echo $product['Title'] ?> (<?php echo $product['ProductId'] ?>)
+                            -
+                            <small><a href='../../json/<?php echo $this->slug ?>/<?php echo basename($cache_file) ?>' class='js-preview'>JSON</a></small>
+                            <small><a href='<?php echo $url ?>' target='blank'>Live XML (curl for JSON)</a></small>
+                        </li>
+                    <?php $p++; endforeach; ?>
+                    </ul>
+                    <!-- /Product Level -->
+
+                </div>
+            </li>
+        <?php $t++; endforeach; ?>
+        </ul>
+        <!-- /Type Level -->
+
+    </div>
+    <div class='column-1-2' style='background: #aaa'>
+        <span class='js-preview-link'></span>
+        <textarea class='js-preview-window'></textarea>
+    </div>
+</div>
